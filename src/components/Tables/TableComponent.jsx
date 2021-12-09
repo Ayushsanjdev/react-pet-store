@@ -147,14 +147,14 @@ const TableComponent = (props) => {
       id,
       category: {
         id: categoryId,
-        name: categoryName
+        name: categoryName,
       },
       name,
-      status
-    }
+      status,
+    };
     setFormValues({
       ...formValues,
-      ...newValues
+      ...newValues,
     });
     setOpen(true);
   };
