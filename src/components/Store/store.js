@@ -1,5 +1,11 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { createStore, applyMiddleware } from 'redux';
+import petReducers from "./Reducers/petsReducers";
+import { composeWithDevTools } from "redux-devtools-extension";
+import thunk from 'redux-thunk';
 
-export default configureStore({
-  reducer: {},
-});
+const store = createStore(
+  petReducers,
+  composeWithDevTools(applyMiddleware(thunk))
+);
+
+export default store;

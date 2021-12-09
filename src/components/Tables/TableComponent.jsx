@@ -12,6 +12,8 @@ import Paper from "@material-ui/core/Paper";
 import EditIcon from "@mui/icons-material/Edit";
 import StatusBar from "../Tables/Statusbar";
 import Pagination from "./Pagination";
+import { fetchPets } from "../Store/Actions/petsActions";
+import { connect } from "react-redux";
 
 const tableHeadings = [
   {
@@ -73,60 +75,37 @@ const useStyles = makeStyles({
 });
 
 const TableComponent = (props) => {
-  const { open, setOpen, formValues, setFormValues } = props;
+  const {
+    open,
+    setOpen,
+    formValues,
+    setFormValues,
+    fetchPets,
+    petsData,
+    loading,
+    dataError,
+  } = props;
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [status, setStatus] = useState("");
-  const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
+    rowsPerPage - Math.min(rowsPerPage, petsData.length - page * rowsPerPage);
 
   const rowsWithData =
     rowsPerPage > 0
-      ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      : data;
-
-  const noDataMessage = (
-    <h3 className={classes.dataMessage}>
-      {status === ""
-        ? "No data available, change status to see list of pets!"
-        : "LOADING..."}
-    </h3>
-  );
-
-  const filterDataId = (data) => {
-    const result = [];
-    data.forEach((item) => {
-      const isItemExist = result.some((val) => val.id === item.id);
-      if (!isItemExist) {
-        result.push(item);
-      }
-    });
-    setData(result);
-  };
+      ? petsData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      : petsData;
 
   useEffect(() => {
-    status !== ""
-      ? fetch(
-          `https://petstore.swagger.io/v2/pet/findByStatus?status=${status}`,
-          { method: "GET", headers: { accept: "application/json" } }
-        )
-          .then((response) => response.json())
-          .then((json) => {
-            filterDataId(json);
-            setLoading(false);
-          })
-      : setLoading(true);
-  }, [status]);
+    fetchPets(status);
+  }, [status, fetchPets]);
 
   const handleStatusChange = (e) => {
     if (e.target.value === "") {
       setStatus("");
-      setData([]);
     } else {
       setStatus(e.target.value);
     }
@@ -221,41 +200,45 @@ const TableComponent = (props) => {
             )}
           </TableHead>
           <TableBody>
-            {!isLoading
-              ? rowsWithData.map((pet) => (
-                  <TableRow key={pet.id}>
-                    <TableCell
-                      className={classes.tableCell}
-                      component='th'
-                      scope='row'
-                    >
-                      {pet.name}{" "}
-                      <EditIcon
-                        className={classes.editIcon}
-                        onClick={() => handleEditForm(pet)}
+            {!loading ? (
+              rowsWithData.map((pet) => (
+                <TableRow key={pet.id}>
+                  <TableCell
+                    className={classes.tableCell}
+                    component='th'
+                    scope='row'
+                  >
+                    {pet.name}{" "}
+                    <EditIcon
+                      className={classes.editIcon}
+                      onClick={() => handleEditForm(pet)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ width: 80 }} align='left'>
+                    {pet.category ? pet.category.name : "N/A"}
+                  </TableCell>
+                  <TableCell style={{ width: 50 }} align='left'>
+                    {pet.photoUrls[0] ? (
+                      <img
+                        src={pet.photoUrls[0]}
+                        alt='pet'
+                        width='50px'
+                        height='50px'
                       />
-                    </TableCell>
-                    <TableCell style={{ width: 80 }} align='left'>
-                      {pet.category ? pet.category.name : "N/A"}
-                    </TableCell>
-                    <TableCell style={{ width: 50 }} align='left'>
-                      {pet.photoUrls[0] ? (
-                        <img
-                          src={pet.photoUrls[0]}
-                          alt='pet'
-                          width='50px'
-                          height='50px'
-                        />
-                      ) : (
-                        <p>N/A</p>
-                      )}
-                    </TableCell>
-                    <TableCell style={{ width: 50 }} align='left'>
-                      {pet.status}
-                    </TableCell>
-                  </TableRow>
-                ))
-              : noDataMessage}
+                    ) : (
+                      <p>N/A</p>
+                    )}
+                  </TableCell>
+                  <TableCell style={{ width: 50 }} align='left'>
+                    {pet.status}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <h3 className={classes.dataMessage}>LOADING...</h3>
+            )}
+
+            {status === "" && <h3 className={classes.dataMessage}>Tweak status to show details</h3>}
 
             {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
@@ -267,7 +250,7 @@ const TableComponent = (props) => {
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-                count={data.length}
+                count={petsData.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 SelectProps={{
@@ -285,4 +268,19 @@ const TableComponent = (props) => {
   );
 };
 
-export default TableComponent;
+const mapStateToProps = (state) => {
+  // console.log(state)
+  return {
+    petsData: state.pets,
+    loading: state.loading,
+    dataError: state.error,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetchPets: (status) => dispatch(fetchPets(status)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableComponent);
