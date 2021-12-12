@@ -83,7 +83,7 @@ const TableComponent = (props) => {
     fetchPets,
     petsData,
     loading,
-    dataError,
+    // dataError,
   } = props;
   const classes = useStyles();
   const [page, setPage] = useState(0);
@@ -218,7 +218,7 @@ const TableComponent = (props) => {
                     {pet.category ? pet.category.name : "N/A"}
                   </TableCell>
                   <TableCell style={{ width: 50 }} align='left'>
-                    {pet.photoUrls[0] ? (
+                    {pet.photoUrls && pet.photoUrls[0] ? (
                       <img
                         src={pet.photoUrls[0]}
                         alt='pet'
@@ -238,7 +238,11 @@ const TableComponent = (props) => {
               <h3 className={classes.dataMessage}>LOADING...</h3>
             )}
 
-            {status === "" && <h3 className={classes.dataMessage}>Tweak status to show details</h3>}
+            {status === "" && (
+              <h3 className={classes.dataMessage}>
+                Tweak status to show details
+              </h3>
+            )}
 
             {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>

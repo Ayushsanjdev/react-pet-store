@@ -4,7 +4,7 @@ const initialState = {
   error: "",
 };
 
-const petReducers = (state = initialState, action) => {
+const getPetReducers = (state = initialState, action) => {
   switch (action.type) {
     case "GET_PETS_REQUEST":
       return {
@@ -24,9 +24,15 @@ const petReducers = (state = initialState, action) => {
         pets: [],
         error: action.payload,
       };
+    case "ADD_PETS_SUCCESS":
+      const pets = state.pets.concat(action.payload);
+      return {
+        ...state,
+        pets,
+      };
     default:
       return state;
   }
 };
 
-export default petReducers;
+export default getPetReducers;

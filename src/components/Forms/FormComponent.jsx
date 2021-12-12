@@ -8,6 +8,8 @@ import Button from "@material-ui/core/Button";
 import { InputLabel } from "@mui/material";
 import { Typography } from "@material-ui/core";
 import { formDefaultValues } from "../Constants/Constants";
+import { addPetsData } from "../Store/Actions/petsActions";
+import { connect } from "react-redux";
 
 const menuItems = [
   {
@@ -39,7 +41,8 @@ const FormComponent = (props) => {
     setFormValues,
     handlePutReq,
     isSubmitting,
-    imgUrl
+    imgUrl,
+    addPetsData,
   } = props;
 
   const handleInputChange = (e) => {
@@ -58,21 +61,9 @@ const FormComponent = (props) => {
     setFormValues(val);
   };
 
-  const handlePostReq = () => {
-    fetch("https://petstore.swagger.io/v2/pet", {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({
-        ...formValues,
-      }),
-    })
-      .then((response) => console.log(response))
-      .catch((err) => console.log(err));
-  };
-
   const handleSubmit = () => {
     if (formValues !== formDefaultValues) {
-      handlePostReq();
+      addPetsData(formValues);
       setFormValues(formDefaultValues);
       setOpen(false);
     } else {
@@ -82,7 +73,12 @@ const FormComponent = (props) => {
 
   return (
     <form>
-      <Grid container alignItems='center' justifyContent='center' direction='column'>
+      <Grid
+        container
+        alignItems='center'
+        justifyContent='center'
+        direction='column'
+      >
         <Grid item>
           <TextField
             name='name'
@@ -154,4 +150,16 @@ const FormComponent = (props) => {
     </form>
   );
 };
-export default FormComponent;
+
+const mapStateToProps = (state) => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch) => {
+  console.log(dispatch);
+  return {
+    addPetsData: (objVal) => dispatch(addPetsData(objVal)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FormComponent);

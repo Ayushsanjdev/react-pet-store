@@ -16,7 +16,14 @@ export const getPetsSuccess = (pets) => {
 export const getPetsFailure = (error) => {
   return {
     type: "GET_PETS_ERROR",
-    payload: error,
+    payload: console.log(error),
+  };
+};
+
+export const addPetsSuccess = (petsObj) => {
+  return {
+    type: "ADD_PETS_SUCCESS",
+    payload: petsObj,
   };
 };
 
@@ -46,5 +53,19 @@ export const fetchPets = (status) => {
           dispatch(getPetsFailure(error.message));
         });
     }
+  };
+};
+
+export const addPetsData = (petsObj) => {
+  return (dispatch) => {
+    axios
+      .post("https://petstore.swagger.io/v2/pet", petsObj)
+      .then((response) => {
+        dispatch(addPetsSuccess(response.data));
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 };

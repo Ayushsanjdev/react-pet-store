@@ -1,10 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
-import petReducers from "./Reducers/petsReducers";
+import getPetReducers from "./Reducers/petsReducers";
 import { composeWithDevTools } from "redux-devtools-extension";
 import thunk from 'redux-thunk';
 
 const store = createStore(
-  petReducers,
+  getPetReducers,
   composeWithDevTools(applyMiddleware(thunk))
 );
 
